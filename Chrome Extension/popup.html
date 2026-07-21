@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bilibili Live Mask Remover</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <div class="heading">
+        <strong>直播遮罩移除</strong>
+        <span id="status" aria-live="polite">正在读取设置…</span>
+      </div>
+
+      <label class="switch-row" for="enabled">
+        <span>启用扩展</span>
+        <span class="switch">
+          <input id="enabled" type="checkbox" disabled>
+          <span class="slider" aria-hidden="true"></span>
+        </span>
+      </label>
+
+      <p>设置会通过 Chrome 同步，并在已打开的直播间中立即生效。</p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
