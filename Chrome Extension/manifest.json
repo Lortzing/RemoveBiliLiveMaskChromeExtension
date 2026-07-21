@@ -1,18 +1,36 @@
 {
-    "name": "Remove Bilibili Live Mask",
-    "description": "删去bilibili某些直播间的模糊部分",
-    "author": "lu0qlng",
-    "version": "1.0",
-    "manifest_version": 3,
-    "icons": {
-        "16": "./img/icon.png",
-        "48": "./img/icon.png",
-        "128": "./img/icon.png"
-    },
-    "content_scripts": [
-		{
-			"matches": ["*://live.bilibili.com/*"],
-			"js": ["Remove Bilibili Live Mask.user.js"]
-		}
-	]
+  "manifest_version": 3,
+  "name": "Bilibili Live Mask Remover",
+  "version": "1.1.0",
+  "description": "取消哔哩哔哩直播间播放器中的局部模糊遮罩，可随时启用或停用。",
+  "author": "Lortzing",
+  "permissions": [
+    "storage"
+  ],
+  "icons": {
+    "16": "img/icon.png",
+    "48": "img/icon.png",
+    "128": "img/icon.png"
+  },
+  "action": {
+    "default_title": "Bilibili Live Mask Remover",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "img/icon.png",
+      "48": "img/icon.png",
+      "128": "img/icon.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://live.bilibili.com/*",
+        "http://live.bilibili.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ]
 }
