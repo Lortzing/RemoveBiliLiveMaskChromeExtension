@@ -1,0 +1,103 @@
+name: Package Chrome Extension
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate extension files
+        run: |
+          node --check "Chrome Extension/content.js"
+          node --check "Chrome Extension/popup.js"
+          node -e "JSON.parse(require('fs').readFileSync('Chrome Extension/manifest.json', 'utf8'))"
+
+      - name: Read extension metadata
+        id: metadata
+        shell: bash
+        run: |
+          VERSION="$(node -p "JSON.parse(require('fs').readFileSync('Chrome Extension/manifest.json', 'utf8')).version")"
+          ARCHIVE="bilibili-live-mask-remover-chrome-v${VERSION}.zip"
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "archive=${ARCHIVE}" >> "$GITHUB_OUTPUT"
+
+      - name: Check tag version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          EXPECTED_TAG="v${{ steps.metadata.outputs.version }}"
+
+          if [[ "$GITHUB_REF_NAME" != "$EXPECTED_TAG" ]]; then
+            echo "Tag version does not match manifest.json."
+            echo "Tag:      $GITHUB_REF_NAME"
+            echo "Expected: $EXPECTED_TAG"
+            exit 1
+          fi
+
+      - name: Package extension
+        shell: bash
+        run: |
+          mkdir -p dist
+          cd "Chrome Extension"
+          zip -r "../dist/${{ steps.metadata.outputs.archive }}" . -x "*.DS_Store"
+
+      - name: Inspect package structure
+        shell: bash
+        run: |
+          ARCHIVE="dist/${{ steps.metadata.outputs.archive }}"
+          unzip -l "$ARCHIVE"
+          unzip -Z1 "$ARCHIVE" | grep -qx "manifest.json"
+
+          if unzip -Z1 "$ARCHIVE" | grep -q '^Chrome Extension/'; then
+            echo "The archive contains an unexpected top-level Chrome Extension directory."
+            exit 1
+          fi
+
+          unzip -p "$ARCHIVE" manifest.json | node -e "
+            let input = '';
+            process.stdin.on('data', chunk => input += chunk);
+            process.stdin.on('end', () => JSON.parse(input));
+          "
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension-v${{ steps.metadata.outputs.version }}
+          path: dist/${{ steps.metadata.outputs.archive }}
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Create or update GitHub Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          ASSET="dist/${{ steps.metadata.outputs.archive }}"
+
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$ASSET" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              "$ASSET#Chrome Extension" \
+              --verify-tag \
+              --generate-notes \
+              --title "$GITHUB_REF_NAME"
+          fi
