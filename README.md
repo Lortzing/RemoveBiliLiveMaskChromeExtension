@@ -12,11 +12,11 @@
 
 ## 安装 Chrome 扩展
 
-1. 下载或克隆本仓库。
+1. 下载 Release 中的 Chrome 扩展 ZIP 并解压，或克隆本仓库。
 2. 打开 `chrome://extensions/`。
 3. 开启右上角的“开发者模式”。
 4. 点击“加载已解压的扩展程序”。
-5. 选择仓库中的 `Chrome Extension` 目录。
+5. 选择解压后的扩展目录，或仓库中的 `Chrome Extension` 目录。
 
 安装后可点击工具栏图标启用或停用。设置修改后会在已打开的直播间中立即生效。
 
@@ -51,7 +51,9 @@ Chrome Extension/
 └── img/icon.png
 Tampermonkey/
 └── remove-bilibili-live-mask.user.js
-.github/workflows/validate.yml
+.github/workflows/
+├── validate.yml      # 基础语法与 Manifest 校验
+└── release.yml       # Chrome 扩展打包与 Release 发布
 ```
 
 ## 开发与校验
@@ -66,6 +68,24 @@ node -e "JSON.parse(require('fs').readFileSync('Chrome Extension/manifest.json',
 ```
 
 GitHub Actions 会在 push 和 pull request 时执行同样的基础校验。
+
+## 打包与发布
+
+在 GitHub Actions 中手动运行 **Package Chrome Extension**，即可生成仅包含 `Chrome Extension/` 内部文件的 ZIP Artifact。
+
+正式发布时，先确保 `Chrome Extension/manifest.json` 中的版本号正确，然后推送相同版本的标签：
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+工作流会检查标签与 Manifest 版本是否一致，并自动：
+
+- 将 `Chrome Extension/` 内部内容打包为 ZIP，确保 `manifest.json` 位于压缩包根目录；
+- 上传保留 30 天的 GitHub Actions Artifact；
+- 创建或更新对应的 GitHub Release；
+- 将扩展 ZIP 添加为 Release Asset。
 
 ## 兼容性与限制
 
