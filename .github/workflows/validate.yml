@@ -1,0 +1,24 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check JavaScript syntax
+        run: |
+          node --check "Chrome Extension/content.js"
+          node --check "Chrome Extension/popup.js"
+          node --check "Tampermonkey/remove-bilibili-live-mask.user.js"
+      - name: Validate manifest
+        run: node -e "JSON.parse(require('fs').readFileSync('Chrome Extension/manifest.json', 'utf8'))"
