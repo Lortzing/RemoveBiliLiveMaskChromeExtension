@@ -1,4 +1,4 @@
-name: Package Chrome Extension
+name: Package Chromium Extension
 
 on:
   workflow_dispatch:
@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           VERSION="$(node -p "JSON.parse(require('fs').readFileSync('Chrome Extension/manifest.json', 'utf8')).version")"
-          ARCHIVE="bilibili-live-mask-remover-chrome-v${VERSION}.zip"
+          ARCHIVE="bilibili-live-mask-remover-chromium-v${VERSION}.zip"
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "archive=${ARCHIVE}" >> "$GITHUB_OUTPUT"
@@ -51,7 +51,7 @@ jobs:
             exit 1
           fi
 
-      - name: Package extension
+      - name: Package shared Chrome and Edge extension
         shell: bash
         run: |
           mkdir -p dist
@@ -79,7 +79,7 @@ jobs:
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: chrome-extension-v${{ steps.metadata.outputs.version }}
+          name: chromium-extension-v${{ steps.metadata.outputs.version }}
           path: dist/${{ steps.metadata.outputs.archive }}
           if-no-files-found: error
           retention-days: 30
@@ -96,7 +96,7 @@ jobs:
             gh release upload "$GITHUB_REF_NAME" "$ASSET" --clobber
           else
             gh release create "$GITHUB_REF_NAME" \
-              "$ASSET#Chrome Extension" \
+              "$ASSET#Chromium Extension (Chrome / Edge)" \
               --verify-tag \
               --generate-notes \
               --title "$GITHUB_REF_NAME"
