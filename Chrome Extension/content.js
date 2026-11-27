@@ -19,6 +19,10 @@
 .web-player-module-area-mask {
   pointer-events: none !important;
 }
+
+.web-player-icon-roomStatus {
+  display: none !important;
+}
 `;
 
   let enabled = true;

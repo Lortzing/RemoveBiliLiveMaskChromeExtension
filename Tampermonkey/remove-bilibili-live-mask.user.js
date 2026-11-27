@@ -2,9 +2,9 @@
 // @name         Bilibili Live Mask Remover
 // @name:zh-CN   哔哩哔哩直播遮罩移除
 // @namespace    https://github.com/Lortzing/RemoveBiliLiveMaskChromeExtension
-// @version      1.1.0
-// @description  Neutralize blur masks in Bilibili live rooms without removing page nodes.
-// @description:zh-CN  非破坏式取消哔哩哔哩直播间播放器中的局部模糊遮罩。
+// @version      1.1.1
+// @description  Neutralize blur masks and hide the corner watermark in Bilibili live rooms without removing page nodes.
+// @description:zh-CN  非破坏式取消哔哩哔哩直播间播放器中的局部模糊遮罩和角落水印。
 // @author       Lortzing
 // @match        https://live.bilibili.com/*
 // @match        http://live.bilibili.com/*
@@ -33,6 +33,10 @@
 #web-player-module-area-mask-panel,
 .web-player-module-area-mask {
   pointer-events: none !important;
+}
+
+.web-player-icon-roomStatus {
+  display: none !important;
 }
 `;
 
