@@ -5,6 +5,7 @@
 ## 特性
 
 - 同时覆盖 `#web-player-module-area-mask-panel` 与 `.web-player-module-area-mask`。
+- 隐藏播放器角落的水印块，`bilibili 直播` logo 和 uid 文本行都在 `div.web-player-icon-roomStatus` 里。
 - 在 `document-start` 阶段注入样式，尽量避免遮罩闪烁。
 - 不直接删除页面节点，仅覆盖模糊、滤镜和背景样式，降低页面动态检查或重建节点造成的失效概率。
 - Chrome / Edge 扩展提供启用/停用开关，设置通过 `chrome.storage.sync` 同步。
@@ -46,9 +47,14 @@ Bilibili 直播播放器的局部遮罩通常由以下选择器控制：
 ```css
 #web-player-module-area-mask-panel
 .web-player-module-area-mask
+.web-player-icon-roomStatus
 ```
 
-本项目通过高优先级 CSS 将 `backdrop-filter`、`filter`、背景和阴影重置，而不是移除对应 DOM。样式节点还会受到轻量级 `MutationObserver` 保护，若页面重建文档结构或删除样式，会自动恢复。
+本项目通过高优先级 CSS 将 `backdrop-filter`、`filter`、背景和阴影重置，而不是移除对应 DOM；水印块只用 `display: none` 隐藏，同样不删除节点。样式节点还会受到轻量级 `MutationObserver` 保护，若页面重建文档结构或删除样式，会自动恢复。
+
+## 选择器实测
+
+在 `live.bilibili.com` 的直播间页面看过：左上角的 `bilibili 直播` logo 和 uid 文本行都在 `div.web-player-icon-roomStatus` 里面，所以对这个容器 `display: none` 就能整块去掉，播放和弹幕都不受影响。
 
 ## 项目结构
 
@@ -87,8 +93,8 @@ GitHub Actions 会在 push 和 pull request 时执行同样的基础校验。
 正式发布时，先确保 `Chrome Extension/manifest.json` 中的版本号正确，然后推送相同版本的标签：
 
 ```bash
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.1.1
+git push origin v1.1.1
 ```
 
 工作流会检查标签与 Manifest 版本是否一致，并自动：
